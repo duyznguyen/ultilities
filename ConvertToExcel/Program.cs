@@ -6,13 +6,13 @@ using System.Text;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 
-namespace DuyOcCho
+namespace ConvertToExcel
 {
     class Program
     {
         static void Main(string[] args)
         {
-            var json = File.ReadAllText(@"D:\Goquo\HappyBooking\Vue\resources.js");
+            var json = File.ReadAllText(@"D:\Goquo\HappyBooking\appsettings.json");
             json = json.Replace("export default", string.Empty);
 
             ConvertToExcel(json);
