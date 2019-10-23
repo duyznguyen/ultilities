@@ -12,10 +12,12 @@ namespace ConvertToExcel
     {
         static void Main(string[] args)
         {
-            var json = File.ReadAllText(@"D:\Goquo\HappyBooking\appsettings.json");
-            json = json.Replace("export default", string.Empty);
+            //var json = File.ReadAllText(@"C:\Users\nguye\OneDrive\Desktop\DsCanBoNhanVien.xlsx");
+            //json = json.Replace("export default", string.Empty);
 
-            ConvertToExcel(json);
+            //ConvertToExcel(json);
+            //CopyKeyValue(json);
+            ReadFileExcel();
         }
 
         private static void ConvertToCsv(string json)
@@ -66,6 +68,68 @@ namespace ConvertToExcel
                 }
                 excel.SaveAs(new FileInfo($@"D:\EXCEL_CSV_FILES\Translation_{DateTime.UtcNow:yyyyMMdd}.xlsx"));
             }
+        }
+
+        private static void CopyKeyValue(string json)
+        {
+            var myTranslation = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(json);
+            foreach(var tl in myTranslation)
+            {
+                foreach(var t in tl.Value)
+                {
+                    if(t.Key == "en-us")
+                    {
+                        tl.Value.Add("en-ie", t.Value);
+                        break;
+                    }
+                }
+            }
+            //string docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var convertToJson = JsonConvert.SerializeObject(myTranslation);
+            File.WriteAllText($@"D:\EXCEL_CSV_FILES\Resources_{DateTime.UtcNow:yyyyMMdd}.json", convertToJson, Encoding.UTF8);
+        }
+
+        private static void ReadFileExcel()
+        {
+            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo(@"C:\Users\nguye\OneDrive\Desktop\DsCanBoNhanVien.xlsx")))
+            {
+                var myWorksheet = xlPackage.Workbook.Worksheets.First(); //select sheet here
+                var totalRows = myWorksheet.Dimension.End.Row;
+                var totalColumns = myWorksheet.Dimension.End.Column;
+                var listEmployee = new List<Employee>();
+                //var sb = new StringBuilder(); //this is your data
+                for (int rowNum = 1; rowNum <= totalRows; rowNum++) //select starting row here
+                {
+                    var row = myWorksheet.Cells[rowNum, 1, rowNum, totalColumns].Select(c => c.Value == null ? string.Empty : c.Value.ToString()).ToList();
+                    if(rowNum > 1)
+                    {
+                        listEmployee.Add(new Employee
+                        {
+                            Id = int.Parse(row[0]),
+                            Name = row[1],
+                            Email = row[2],
+                            Department = row[3],
+                            Role = row[4],
+                            Manager = row[5],
+                            ManagerLv1 = row[6],
+                        });
+                    }
+                    //sb.AppendLine(string.Join(",", row));
+                }
+                Console.WriteLine(listEmployee);
+            }
+        }
+
+
+        public class Employee
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string Email { get; set; }
+            public string Department { get; set; }
+            public string Role { get; set; }
+            public string Manager { get; set; }
+            public string ManagerLv1 { get; set; }
         }
     }
 }
