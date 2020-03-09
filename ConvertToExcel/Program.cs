@@ -12,12 +12,12 @@ namespace ConvertToExcel
     {
         static void Main(string[] args)
         {
-            //var json = File.ReadAllText(@"C:\Users\nguye\OneDrive\Desktop\DsCanBoNhanVien.xlsx");
-            //json = json.Replace("export default", string.Empty);
+            var json = File.ReadAllText(@"C:\Users\admin\Desktop\resources.js");
+            json = json.Replace("export default", string.Empty);
 
-            //ConvertToExcel(json);
+            ConvertToExcel(json);
             //CopyKeyValue(json);
-            ReadFileExcel();
+            // ReadFileExcel();
         }
 
         private static void ConvertToCsv(string json)
@@ -56,7 +56,16 @@ namespace ConvertToExcel
                 foreach (var (key, value) in myTranslation)
                 {
                     var dataRows = new List<string> { key };
-                    dataRows.AddRange(value.Values);
+
+                    for (var i = 1; i < headers.Count(); i++)
+                    {
+                        var header = headers[i];
+
+                        if (value.ContainsKey(header))
+                        {
+                            dataRows.Add(value[header]);
+                        }
+                    }
 
                     var colStart = 1;
                     foreach (var data in dataRows)
